@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    networks:
+      - myapp-network
+
+  app:
+    build: .
+    container_name: nodejs-simple-app
+    ports:
+      - "3000:3000"
+    networks:
+      - myapp-network
+    depends_on:
+      - mongo
+
+networks:
+  myapp-network:
+    driver: bridge
