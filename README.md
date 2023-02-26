@@ -1,72 +1,102 @@
-## demo app - developing with Docker
+# NodeJs-Simple-App
 
-This demo app shows a simple user profile app set up using 
-- index.html with pure js and css styles
-- nodejs backend with express module
-- mongodb for data storage
+A simple Node.js application using MongoDB and Docker that takes user inputs such as Name, Email, and favorite football team, and saves it to a MongoDB database.
 
-![image](https://user-images.githubusercontent.com/13016369/219943014-54dfb903-6f4e-4d9e-87a1-4046569a48f8.png)
+## Project Structure
 
-All components are docker-based
+```
+NodeJs-Simple-App/
+├── Dockerfile
+├── docker-compose.yml
+├── app/
+│   └── index.js
+├── node_modules/
+├── package.json
+└── package-lock.json
+```
 
-### With Docker
+## Prerequisites
 
-#### To start the application
+Make sure you have the following installed:
+- Node.js
+- npm (Node Package Manager)
+- Docker
+- Docker Compose
 
-Step 1: Create docker network
+## Setup Instructions
 
-    docker network create mongo-network 
+1. **Clone the repository**
 
-Step 2: start mongodb 
+    ```bash
+    git clone https://github.com/akintunero/NodeJs-Simple-App.git
+    cd NodeJs-Simple-App
+    ```
 
-    docker run -d -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=password --name mongodb --net mongo-network mongo    
+2. **Initialize the project and install dependencies**
 
-Step 3: start mongo-express
-    
-    docker run -d -p 8081:8081 -e ME_CONFIG_MONGODB_ADMINUSERNAME=admin -e ME_CONFIG_MONGODB_ADMINPASSWORD=password --net mongo-network --name mongo-express -e ME_CONFIG_MONGODB_SERVER=mongodb mongo-express   
+    ```bash
+    npm init -y
+    npm install express mongoose
+    ```
 
-_NOTE: creating docker-network in optional. You can start both containers in a default network. In this case, just omit `--net` flag in `docker run` command_
+3. **Create a Docker network**
 
-Step 4: open mongo-express from browser
+    ```bash
+    docker network create myapp-network
+    ```
 
-    http://localhost:8081
+4. **Run MongoDB container**
 
-Step 5: create `user-account` _db_ and `users` _collection_ in mongo-express
+    ```bash
+    docker run -d --name mongo --network myapp-network mongo
+    ```
 
-Step 6: Start your nodejs application locally - go to `app` directory of project 
+5. **Build the Docker image for the Node.js app**
 
-    npm install 
-    node server.js
-    
-Step 7: Access you nodejs application UI from browser
+    ```bash
+    docker build -t nodejs-simple-app .
+    ```
 
-    http://localhost:3000
+6. **Run the Node.js application container**
 
-### With Docker Compose
+    ```bash
+    docker run -d --name nodejs-simple-app --network myapp-network -p 3000:3000 nodejs-simple-app
+    ```
 
-#### To start the application
+7. **Verify that the containers are running**
 
-Step 1: start mongodb and mongo-express
+    ```bash
+    docker ps
+    ```
 
-    docker-compose -f docker-compose.yaml up
-    
-_You can access the mongo-express under localhost:8080 from your browser_
-    
-Step 2: in mongo-express UI - create a new database "my-db"
+8. **Access the application**
 
-Step 3: in mongo-express UI - create a new collection "users" in the database "my-db"       
-    
-Step 4: start node server 
+   Open your browser and navigate to [http://localhost:3000](http://localhost:3000).
 
-    npm install
-    node server.js
-    
-Step 5: access the nodejs application from browser 
+## Application Endpoints
 
-    http://localhost:3000
+- `GET /` - Returns "Hello World!".
+- `POST /users` - Adds a new user to the database. Expects a JSON body with `name`, `email`, and `favoriteTeam`.
+- `GET /users` - Retrieves all users from the database.
 
-#### To build a docker image from the application
+## Example cURL Commands
 
-    docker build -t my-app:1.0 .       
-    
-The dot "." at the end of the command denotes location of the files being built into an image.
+- **Test the root endpoint**
+
+    ```bash
+    curl http://localhost:3000
+    ```
+
+- **Add a new user**
+
+    ```bash
+    curl -X POST http://localhost:3000/users -H "Content-Type: application/json" -d '{"name":"John Doe","email":"john.doe@example.com","favoriteTeam":"Manchester United"}'
+    ```
+
+- **Get all users**
+
+    ```bash
+    curl http://localhost:3000/users
+    ```
+
+#

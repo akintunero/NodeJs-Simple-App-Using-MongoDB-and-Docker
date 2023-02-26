@@ -1,18 +1,20 @@
-FROM node:13-alpine
+# Use the official Node.js image
+FROM node:14
 
-ENV MONGO_DB_USERNAME=admin \
-    MONGO_DB_PWD=password
+# Create and change to the app directory
+WORKDIR /usr/src/app
 
-RUN mkdir -p /home/app
+# Copy application dependency manifests to the container image
+COPY package*.json ./
 
-COPY ./app /home/app
-
-# set default dir so that next commands executes in /home/app dir
-WORKDIR /home/app
-
-# will execute npm install in /home/app because of WORKDIR
+# Install dependencies
 RUN npm install
 
-# no need for /home/app/server.js because of WORKDIR
-CMD ["node", "server.js"]
+# Copy application code
+COPY ./app ./app
 
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Run the web service on container startup
+CMD [ "node", "app/index.js" ]
